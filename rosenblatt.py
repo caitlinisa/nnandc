@@ -1,5 +1,5 @@
 import numpy as np 
-
+import matplotlib.pyplot as plt
 
 def generate_data(Pnum,Ndim):
     data = np.random.normal(0, 1, size=(Ndim, Pnum))
@@ -39,28 +39,44 @@ def rosenblatt_training(data,labels,maxEpochs):
                 succeed += 1
             else:
                 weights = weights + ((1.0/n)*data_ex*labels_ex)
-        print (succeed)
+        #print (succeed)
         if succeed != p and t == maxEpochs-1:
-            print ("Failed")
+            #print ("Failed")
             return False
         elif succeed == p:
-            print ("Succeeded")
+            #print ("Succeeded")
             return True
         succeed = 0 
             
 
             
 succeeded = 0
-failed = 0          
-for idx in range(50):
-    data = generate_data(20,20)
-    labels = generate_labels(60)
-    success = rosenblatt_training(data,labels,20)
-    if success:
-        succeeded += 1
-    else:
-        failed += 1
-print (succeeded)
-print (failed)
+failed = 0 
+ratio = []
+num_examples = [15,20,25,30,35,40,45,50,55,60]
+n = 20 
+totalruns = 50
+maxEpochs = 100  
+for ex in range(len(num_examples)):     
+    for idx in range(totalruns):
+        data = generate_data(num_examples[ex],n)
+        labels = generate_labels(num_examples[ex])
+        success = rosenblatt_training(data,labels,100)
+        if success:
+            succeeded += 1
+        else:
+            failed += 1
+    fraction = succeeded/totalruns
+    ratio.append(fraction)
+    succeeded = 0
+    failed = 0
+
+
+xaxis  = [0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0]
+plt.plot(xaxis,ratio)
+plt.title("Fraction of successful runs against the value of alpha")
+plt.xlabel('alpha')
+plt.ylabel('Fraction of successful runs')
+plt.show()
 
 
