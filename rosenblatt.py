@@ -15,7 +15,7 @@ def generate_labels(Pnum):
 
 def rosenblatt_training(data,labels,maxEpochs):
     n,p = data.shape
-    weights = np.zeros((20,1))
+    weights = np.zeros((n,1))
     succeed = 0
     for t in range(maxEpochs):
         for idx in range(p):
@@ -24,16 +24,21 @@ def rosenblatt_training(data,labels,maxEpochs):
             labels_ex = labels[idx,:]
             data_ex = np.reshape(data_ex,(n,1))
             labels_ex = np.reshape(labels_ex,(1,1))
+            #print(data_ex.shape)
+            #print(labels_ex.shape)
             #print (labels.shape)
             weight_vector = np.squeeze(np.asarray(weights))
-            data_vector = np.squeeze(np.asarray(np.matmul(data_ex,labels_ex)))
+            data_vector = np.squeeze(np.asarray(data_ex))
+            #print(weight_vector)
             #print (data_vector.shape)
-            E = np.dot(weight_vector , data_vector)
+            E = ((np.dot(weight_vector , data_ex) * labels_ex)[0])[0]
+            #print(E)
+            #exit(0)
             if E > 0:
                 weights = weights
                 succeed += 1
             else:
-                weights = weights + ((1.0/n)*np.matmul(data,labels))
+                weights = weights + ((1.0/n)*data_ex*labels_ex)
         print (succeed)
         if succeed != p and t == maxEpochs-1:
             print ("Failed")
@@ -48,9 +53,9 @@ def rosenblatt_training(data,labels,maxEpochs):
 succeeded = 0
 failed = 0          
 for idx in range(50):
-    data = generate_data(60,20)
+    data = generate_data(20,20)
     labels = generate_labels(60)
-    success = rosenblatt_training(data,labels,100)
+    success = rosenblatt_training(data,labels,20)
     if success:
         succeeded += 1
     else:
