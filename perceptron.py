@@ -20,32 +20,37 @@ def generate_labels(teacher,data):
     #print (labels)
     return labels
 
+def generate_labels_with_noise(teacher,data,lamda):
+    #print (teacher.shape, data.shape)
+    label_unsigned = np.dot(teacher,data)
+    #print(label_unsigned)
+    labels = np.zeros(len(label_unsigned))
+    for i in range(len(label_unsigned)):
+        if label_unsigned[i] < 0:
+            labels[i] = -1
+        else:
+            labels[i] = 1
+        if np.random.uniform(0, 1) < lamda:
+            labels[i] = -1 * labels[i]
+    #print (labels)
+    return labels
+
+
 def minover_algorithm(data,labels,teacher,maxEpochs):
     n,p = data.shape
-    #print(n,p)
-    #print(labels.shape,data.shape,teacher.shape)
     student = np.zeros((n,1))
     generalization_error = 0
     for t in range(maxEpochs):
-        #print (np.matmul(data, labels))
         stability = np.zeros(p)
         for i in range (p):
             stability[i] = np.dot(np.squeeze(student),data[:,i]*labels[i,:])
-        #print(stability)
         index = np.argmin(stability)
-        #print(index)
         x =(1.0/n)*data[:,index]*labels[index,:]
         x = np.reshape(x,(n,1))
-        #print (x)
-        #print (x.shape)
-        #print (student)
         student = student + x
-        #print (student)
-        #exit()
-        #print ("final student shape",student.shape)
+
         
     generalization_error = np.arccos(np.dot(np.squeeze(student),np.squeeze(teacher))/(np.linalg.norm(student)*np.linalg.norm(teacher)))/np.pi
-    #print ("gen error",generalization_error)
     return generalization_error
     
             
@@ -75,7 +80,8 @@ def compareN():
                 teacher = teacher / factor
                 #print (np.linalg.norm(teacher),math.sqrt(N))
                 data = generate_data(int(alpha[ex]*N),N)
-                labels = generate_labels(teacher,data)
+                #labels = generate_labels(teacher,data)
+                labels = generate_labels_with_noise(teacher,data,0.1)
                 length = len(labels)
                 labels = np.reshape(labels, (length, 1))
                 generalization_error = minover_algorithm(data,labels,teacher,1000)
